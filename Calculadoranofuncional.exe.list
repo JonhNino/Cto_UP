@@ -1,0 +1,744 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+Calculadoranofuncional.exe -- emu8086 assembler version: 4.08  
+ 
+[ 4/10/2021  --  1:27:41 p. m. ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       ;--------------------------------------------------------
+[   2]        :                                       ;Universidad Pedagogica y Tecnologica de Colombia UPTC
+[   3]        :                                       ;Facultad Seccional Sogamoso
+[   4]        :                                       ;Escuela de Ingenieria Electronica
+[   5]        :                                       ;--------------------------------------------------------
+[   6]        :                                       ;Microprocessors Course
+[   7]        :                                       ;Description: Calculator. Example of keyboard decoding
+[   8]        :                                       ;             and operations implementation
+[   9]        :                                       ;Author:      Wilson Javier Perez Holguin
+[  10]        :                                       ;Date:        30-07-2020
+[  11]        :                                       ;--------------------------------------------------------
+[  12]        :                                       
+[  13]        :                                       
+[  14]        :                                       DATA   SEGMENT PARA PUBLIC 'DATA'
+[  15]    0000: 00 00 00 00                           number1 DB  0,0,0,0    ;Thousands,Hundreds,Tens,Units   Numero 1 de 4 digitos
+[  16]    0004: 00 00 00 00                           number2 DB  0,0,0,0    ;Thousands,Hundreds,Tens,Units   Numero 1 de 4 digitos
+[  17]    0008: 00 00 00 00                           result  DB  0,0,0,0    ;Thousands,Hundreds,Tens,Units   Numero 1 de 4 digitos
+[  18]    000C: 00 00                                 n1_bin  DW  ?          ;Convertir numero 1 a binario
+[  19]    000E: 00 00                                 n2_bin  DW  ?          ;Convertir numero 2 a binario
+[  20]    0010: 3F 3F 3F 3F                           show    DB  3FH,3FH,3FH,3FH;Mostrar 0 al inicio del programa
+[  21]        :                                       ;           0   1   2   3   4   5   6   7   8   9   0
+[  22]    0014: 3F 06 5B 4F 66 6D 7D 07 7F 67 00      cod7seg DB  3FH,06h,5BH,4FH,66H,6DH,7DH,07H,7FH,67H,00H   ;0 ->,OFF  datos de conversion
+[  23]    001F: 00                                    get_key DB  ?          ;Obtener una tecla
+[  24]    0020: 00                                    key     DB  ?          ; saber que tecla es
+[  25]    0021: 00                                    old_key DB  ?          ; saber cual fue la tecla anterior
+[  26]        :                                       ; Scand DCBA RETURN 1234
+[  27]        :                                       ;teclacaptur   0   1    2      3   4   5     6     7   8   9    ON/C
+[  28]    0022: 7D BE BD BB DE DD DB EE ED EB E7 D7   codkeyb DB  7Dh,0BEh,0BDh,0BBh,0DEh,0DDh,0DBh,0EEh,0EDh,0EBh,0E7h,0D7h,0B7h,77h,7Bh,7Eh  ;Keyboard codes (0->9,/,x,-,+,=,ON/C) Diferentes combianaciones
+                B7 77 7B 7E                         
+[  29]        :                                       
+[  30]        :                                       ;               3210 3210
+[  31]        :                                       ;                                0111 1101
+[  32]        :                                       ;  BCD     7-Seg
+[  33]        :                                       ; Digit     Code
+[  34]        :                                       ;        0                3FH
+[  35]        :                                       ;         1                06H
+[  36]        :                                       ;         2                5BH
+[  37]        :                                       ;         3                4FH
+[  38]        :                                       ;         4                66H
+[  39]        :                                       ;         5                6DH
+[  40]        :                                       ;         6                7DH
+[  41]        :                                       ;         7                07H
+[  42]        :                                       ;         8                7FH
+[  43]        :                                       ;         9                67H
+[  44]        :                                       
+[  45]        :                                       ;Para el teclado 4*4
+[  46]        :                                       ;       DIGITO        SCAND DCBA  RETURN 4321  Hexa
+[  47]        :                                       ;       ON/C            0111= 7H     1110= EH     07EH
+[  48]        :                                       ;         0             0111= 7H     1101= DH     07DH
+[  49]        :                                       ;         =             0111= 7H     1011= BH     07BH
+[  50]        :                                       ;         +             0111= 7H     0111= 7H     077H          A=1010
+[  51]        :                                       ;         1             1011= BH     1110= EH     0BEH          B=1011
+[  52]        :                                       ;         2             1011= BH     1101= DH     0BDH          C=1100
+[  53]        :                                       ;         3             1011= BH     1011= BH     0BBH          D=1101
+[  54]        :                                       ;         -             1011= BH     0111= 7H     0B7H          E=1110
+[  55]        :                                       ;         4             1101= DH     1110= EH     0DEH          F=1111
+[  56]        :                                       ;         5             1101= DH     1101= DH     0DDH
+[  57]        :                                       ;         6             1101= DH     1011= BH     0DBH
+[  58]        :                                       ;         *             1101= DH     0111= 7H     0D7H
+[  59]        :                                       ;         7             1110= EH     1110= EH     0EEH
+[  60]        :                                       ;         8             1110= EH     1101= DH     0EDH
+[  61]        :                                       ;         9             1110= EH     1011= BH     0EBH
+[  62]        :                                       ;         /             1110= EH     1110= 7H     0E7H
+[  63]        :                                       ;------------------------------------------------------------------------------------------------------------------------------
+[  64]        :                                       ; SEGMENTO DE variables de apoyo
+[  65]        :                                       ;------------------------------------------------------------------------------------------------------------------------------
+[  66]        :                                       
+[  67]    0032: 00 00                                 res          dw  0
+[  68]    0034: 00                                    operacion    db 0
+[  69]        :                                       
+[  70]    0035: 00                                    unidades     db 0
+[  71]    0036: 00                                    decenas      db 0
+[  72]    0037: 00                                    centenas     db 0
+[  73]    0038: 00                                    mil          db 0
+[  74]        :                                       
+[  75]        :                                       
+[  76]        :                                       
+[  77]    0039: 00 00                                 CantUnoR     dw 0
+[  78]    003B: 00 00                                 CantDosR     dw 0
+[  79]    003D: 00 00 24 00                           Resulta      dw 0,"$"
+[  80]    0041: 00 00 00 00 00 00 00 00 00 00 00 00   ResultaR     dw 11 DUP(?),"$"
+                00 00 00 00 00 00 00 00 00 00 24 00 
+                                                    
+[  81]    0059: 00 00                                 Cantidad     dw 0
+[  82]    005B: 00 00                                 Potencia     dw 0
+[  83]        :                                       
+[  84]        :                                       
+[  85]        :                                       
+[  86]        :                                       DATA    ENDS
+[  87]        :                                       
+[  88]        :                                       
+[  89]        :                                       
+[  90]        :                                       
+[  91]        :                                       STACK   SEGMENT PARA STACK 'STACK'
+[  92]    0060: 40                                    DB      64 DUP ?
+[  93]        :                                       STACK   ENDS
+[  94]        :                                       
+[  95]        :                                       
+[  96]        :                                       CODE    SEGMENT PUBLIC 'CODE'
+[  97]        :                                       ASSUME CS:CODE, DS:DATA, SS:STACK, ES:DATA
+[  98]        :                                       
+[  99]    0070:                                       MAIN    PROC NEAR
+[ 100]    0070:                                       START:
+[ 101]    0070: B8 00 00                              mov ax,@DATA
+[ 102]    0073: 8E D8                                 mov ds,ax
+[ 103]        :                                       
+[ 104]    0075: BA 06 02                              mov dx,0206h        ;PPI Initialization
+[ 105]    0078: B0 89                                 mov al,89h
+[ 106]    007A: EE                                    out dx,al
+[ 107]        :                                       
+[ 108]    007B:                                       cycle:                      ;Main cycle
+[ 109]    007B: E8 06 00                              call CNV7SEG
+[ 110]    007E: E8 16 00                              call PRINTD
+[ 111]    0081: EB F8                                 jmp  cycle
+[ 112]        :                                       
+[ 113]    0083: C3                                    ret                 ;Return to another subroutine or to OS
+[ 114]        :                                       
+[ 115]        :                                       MAIN    ENDP
+[ 116]        :                                       
+[ 117]        :                                       ;Iniciar proc near
+[ 118]        :                                       ;Iniciar endp
+[ 119]        :                                       
+[ 120]        :                                       
+[ 121]    0084:                                       CNV7SEG PROC NEAR             ;Para convertir a 7 segmentos
+[ 122]    0084: BE 00 00                              mov  si,0
+[ 123]    0087: BB 14 00                              lea  bx,cod7seg     ;Start address of 7-Seg code table
+[ 124]    008A:                                       cycle_cv:
+[ 125]    008A: 8A 04                                 mov  al,number1[si] ;Reading the number to be translated
+[ 126]    008C: D7                                    xlat                ;BCD to 7-Seg translation
+[ 127]    008D: 88 44 10                              mov  show[si],al    ;Writing the translated number
+[ 128]    0090: 46                                    inc  si
+[ 129]    0091: 83 FE 04                              cmp  si,4
+[ 130]    0094: 75 F4                                 jne  cycle_cv
+[ 131]    0096: C3                                    ret
+[ 132]        :                                       CNV7SEG ENDP
+[ 133]        :                                       
+[ 134]        :                                       
+[ 135]    0097:                                       PRINTD  PROC NEAR
+[ 136]        :                                       ;Process to print on the 7-Seg display
+[ 137]    0097: B3 FE                                 mov  bl,0FEh         ;Strobe init value   1111_1110
+[ 138]    0099: BE 00 00                              mov  si,0
+[ 139]    009C:                                       cycle_pr:
+[ 140]        :                                       ;LIGHTS ON
+[ 141]    009C: BA 02 02                              mov  dx,0202h
+[ 142]    009F: 8A 44 10                              mov  al,show[si]     ;Reading the number to show
+[ 143]    00A2: EE                                    out  dx,al
+[ 144]        :                                       
+[ 145]    00A3: BA 00 02                              mov  dx,0200h
+[ 146]    00A6: 8A C3                                 mov  al,bl           ;Strobe
+[ 147]    00A8: EE                                    out  dx,al
+[ 148]        :                                       
+[ 149]        :                                       ;GETTING THE KEYBOARD CODE
+[ 150]    00A9: D0 E0 D0 E0 D0 E0 D0 E0               shl  al,4            ;Scan_0000
+[ 151]    00B1: A2 1F 00                              mov  get_key,al
+[ 152]    00B4: BA 04 02                              mov  dx,0204h        ;get_key <= PTOC(L)
+[ 153]    00B7: EC                                    in   al,dx
+[ 154]    00B8: 24 0F                                 and  al,0Fh
+[ 155]    00BA: 08 06 1F 00                           or   get_key,al      ;Scan_PTOC(L)
+[ 156]    00BE: E8 0F 00                              call KEYDEC
+[ 157]        :                                       
+[ 158]        :                                       ;LIGHTS OFF
+[ 159]    00C1: BA 00 02                              mov  dx,0200h
+[ 160]    00C4: B0 FF                                 mov  al,0FFh
+[ 161]    00C6: EE                                    out  dx,al
+[ 162]        :                                       
+[ 163]        :                                       ;PREPARE THE NEXT DATA PRINTING
+[ 164]    00C7: D0 C3                                 rol  bl,1
+[ 165]    00C9: 46                                    inc  si
+[ 166]    00CA: 83 FE 04                              cmp  si,4
+[ 167]    00CD: 75 CD                                 jne  cycle_pr
+[ 168]    00CF: C3                                    ret
+[ 169]        :                                       PRINTD  ENDP
+[ 170]        :                                       
+[ 171]        :                                       
+[ 172]        :                                       
+[ 173]        :                                       
+[ 174]    00D0:                                       KEYDEC  PROC NEAR
+[ 175]    00D0: 53                                    push bx
+[ 176]    00D1: A0 1F 00                              mov  al,get_key
+[ 177]    00D4: 3A 06 21 00                           cmp  al,old_key
+[ 178]    00D8: 75 02                                 jne  key_pressed
+[ 179]    00DA: EB 29                                 jmp  go_back2       ;Return. The same key is still pressed
+[ 180]    00DC:                                       key_pressed:
+[ 181]    00DC: 24 0F                                 and  al,0Fh         ;Mask 0Fh
+[ 182]    00DE: 3C 0F                                 cmp  al,0Fh
+[ 183]    00E0: 75 02                                 jne  decode_key
+[ 184]    00E2: EB 21                                 jmp  go_back2       ;Return. No key was pressed
+[ 185]    00E4:                                       decode_key:                 ;Keyboard decoding routine
+[ 186]    00E4: B4 00                                 mov  ah,0           ;Counter to zero
+[ 187]    00E6: BB 22 00                              lea  bx,codkeyb     ;Keyboard code table
+[ 188]    00E9:                                       cycle_kbd:
+[ 189]    00E9: 8A C4                                 mov  al,ah          ;Load counter to AX(L)
+[ 190]    00EB: D7                                    xlat
+[ 191]    00EC: 3A 06 1F 00                           cmp  al,get_key
+[ 192]    00F0: 74 09                                 je   key_decoded
+[ 193]    00F2: FE C4                                 inc  ah
+[ 194]    00F4: 80 FC 10                              cmp  ah,16
+[ 195]    00F7: 7C F0                                 jl   cycle_kbd
+[ 196]    00F9: EB 0A                                 jmp  go_back2       ;Return. It is not a valid key
+[ 197]    00FB:                                       key_decoded:
+[ 198]    00FB: A2 21 00                              mov  old_key,al     ;Pressed Key Code
+[ 199]    00FE: 88 26 20 00                           mov  key,ah         ;Key (0->15 Hex)
+[ 200]    0102: E8 02 00                              call EVAL
+[ 201]        :                                       ;Return. Key successfully decoded
+[ 202]    0105:                                       go_back2:
+[ 203]    0105: 5B                                    pop  bx
+[ 204]    0106: C3                                    ret
+[ 205]        :                                       KEYDEC  ENDP
+[ 206]        :                                       
+[ 207]        :                                       
+[ 208]        :                                       
+[ 209]        :                                       
+[ 210]        :                                       
+[ 211]        :                                       
+[ 212]        :                                       
+[ 213]    0107:                                       EVAL    PROC NEAR
+[ 214]        :                                       
+[ 215]    0107: A0 20 00                              mov  al,key
+[ 216]    010A: 3C 0A                                 cmp  al,10
+[ 217]    010C: 72 0B                                 jb   rot_save_cbin  ;Number 0->9. Rotate, save and conversion to binary
+[ 218]    010E: 3C 0E                                 cmp  al,14
+[ 219]    0110: 74 76                                 je   equal          ;Equal
+[ 220]    0112: 3C 0F                                 cmp  al,15
+[ 221]    0114: E8 A7 00                              call on_clr         ;Call to ON/Clear process
+[ 222]    0117: EB 51                                 jmp save_number
+[ 223]        :                                       
+[ 224]    0119:                                       rot_save_cbin:
+[ 225]    0119: 8A 26 01 00                           mov ah,number1[1]    ;Rotate Units->Tens, Tens->Hundreds, Hundreds->Thousands
+[ 226]    011D: 88 26 00 00                           mov number1[0],ah
+[ 227]    0121: 8A 26 02 00                           mov ah,number1[2]
+[ 228]    0125: 88 26 01 00                           mov number1[1],ah
+[ 229]    0129: 8A 26 03 00                           mov ah,number1[3]
+[ 230]    012D: 88 26 02 00                           mov number1[2],ah
+[ 231]        :                                       
+[ 232]    0131: A0 20 00                              mov al,key
+[ 233]    0134: A2 03 00                              mov number1[3],al    ;Save key in Units
+[ 234]        :                                       
+[ 235]        :                                       ;Conversion to binary routine
+[ 236]    0137: B4 00                                 mov ah,0
+[ 237]    0139: A0 00 00                              mov al,number1[0]
+[ 238]    013C: B9 E8 03                              mov cx,1000
+[ 239]    013F: F7 E1                                 mul cx
+[ 240]    0141: A3 0C 00                              mov n1_bin,ax
+[ 241]    0144: B4 00                                 mov ah,0
+[ 242]    0146: A0 01 00                              mov al,number1[1]
+[ 243]    0149: B9 64 00                              mov cx,100
+[ 244]    014C: F7 E1                                 mul cx
+[ 245]    014E: 01 06 0C 00                           add n1_bin,ax
+[ 246]    0152: B4 00                                 mov ah,0
+[ 247]    0154: A0 02 00                              mov al,number1[2]
+[ 248]    0157: B9 0A 00                              mov cx,10
+[ 249]    015A: F7 E1                                 mul cx
+[ 250]    015C: 01 06 0C 00                           add n1_bin,ax
+[ 251]    0160: B4 00                                 mov ah,0
+[ 252]    0162: A0 03 00                              mov al,number1[3]
+[ 253]    0165: 01 06 0C 00                           add n1_bin,ax
+[ 254]        :                                       
+[ 255]    0169: C3                                    ret
+[ 256]        :                                       
+[ 257]        :                                       
+[ 258]    016A:                                       save_number:
+[ 259]    016A: A2 34 00                              mov operacion,al
+[ 260]    016D: A1 0C 00                              mov ax, n1_bin
+[ 261]    0170: A3 39 00                              mov CantUnoR, ax
+[ 262]    0173: C6 06 00 00 00                        mov number1[0],0
+[ 263]    0178: C6 06 01 00 00                        mov number1[1],0
+[ 264]    017D: C6 06 02 00 00                        mov number1[2],0
+[ 265]    0182: C6 06 03 00 00                        mov number1[3],0
+[ 266]    0187: C3                                    ret
+[ 267]        :                                       
+[ 268]    0188:                                       equal:
+[ 269]    0188: E8 C6 00                              call NumberDos
+[ 270]    018B: A1 0E 00                              mov ax,n2_bin
+[ 271]    018E: 89 1E 3B 00                           mov CantDosR,bx
+[ 272]        :                                       
+[ 273]    0192: A0 34 00                              mov al,operacion
+[ 274]    0195: 3C 0A                                 cmp al,10
+[ 275]    0197: 72 80                                 jb  rot_save_cbin ;Numer 0--->. Rotate, save and conversion to binary
+[ 276]    0199: 74 0D                                 je division       ;Division
+[ 277]    019B: 3C 0B                                 cmp al,11
+[ 278]    019D: 74 10                                 je multi          ;Multiplicacion
+[ 279]    019F: 3C 0C                                 cmp al,12
+[ 280]    01A1: 74 13                                 je subtrac        ;Substraction
+[ 281]    01A3: 3C 0D                                 cmp al,13
+[ 282]    01A5: 74 13                                 je sum             ;Sum
+[ 283]        :                                       
+[ 284]    01A7: C3                                    ret
+[ 285]    01A8:                                       division:
+[ 286]        :                                       
+[ 287]        :                                       
+[ 288]    01A8: E8 FD FF                              call Division
+[ 289]    01AB: E8 DA FF                              call equal
+[ 290]    01AE: C3                                    ret
+[ 291]        :                                       
+[ 292]    01AF:                                       multi:
+[ 293]        :                                       
+[ 294]        :                                       
+[ 295]        :                                       
+[ 296]    01AF: E8 B8 01                              call Multiplica
+[ 297]    01B2: E8 D3 FF                              call equal
+[ 298]    01B5: C3                                    ret
+[ 299]        :                                       
+[ 300]    01B6:                                       subtrac:
+[ 301]        :                                       
+[ 302]        :                                       
+[ 303]    01B6: E8 C8 01                              call Resta
+[ 304]        :                                       
+[ 305]    01B9: C3                                    ret
+[ 306]        :                                       
+[ 307]    01BA:                                       sum:
+[ 308]    01BA: E8 AD 01                              call Suma
+[ 309]        :                                       
+[ 310]        :                                       ;resultado, conversion bin a bcd  (Dividir/1000-100/10)
+[ 311]        :                                       ; Resusltado se almacena en variable show en bcd se envio a la funcion printd impreime en lcd
+[ 312]    01BD: C3                                    ret
+[ 313]        :                                       
+[ 314]        :                                       
+[ 315]        :                                       
+[ 316]        :                                       EVAL    ENDP
+[ 317]        :                                       
+[ 318]    01BE:                                       Opera proc near
+[ 319]        :                                       
+[ 320]        :                                       Opera ENDP
+[ 321]        :                                       
+[ 322]        :                                       
+[ 323]    01BE:                                       ON_CLR  PROC NEAR
+[ 324]        :                                       
+[ 325]    01BE: C6 06 00 00 00                        mov number1[0],0
+[ 326]    01C3: C6 06 01 00 00                        mov number1[1],0
+[ 327]    01C8: C6 06 02 00 00                        mov number1[2],0
+[ 328]    01CD: C6 06 03 00 00                        mov number1[3],0
+[ 329]    01D2: C6 06 04 00 00                        mov number2[0],0
+[ 330]    01D7: C6 06 05 00 00                        mov number2[1],0
+[ 331]    01DC: C6 06 06 00 00                        mov number2[2],0
+[ 332]    01E1: C6 06 07 00 00                        mov number2[3],0
+[ 333]    01E6: C6 06 08 00 00                        mov result[0],0
+[ 334]    01EB: C6 06 09 00 00                        mov result[1],0
+[ 335]    01F0: C6 06 0A 00 00                        mov result[2],0
+[ 336]    01F5: C6 06 0B 00 00                        mov result[3],0
+[ 337]    01FA: C7 06 0C 00 00 00                     mov n1_bin,0
+[ 338]    0200: C7 06 3B 00 00 00                     mov CantDosR, 0
+[ 339]    0206: C7 06 39 00 00 00                     mov CantUnoR, 0
+[ 340]    020C: C6 06 34 00 00                        mov operacion,0
+[ 341]        :                                       
+[ 342]        :                                       
+[ 343]    0211: C3                                    ret
+[ 344]        :                                       
+[ 345]        :                                       ON_CLR  ENDP
+[ 346]        :                                       
+[ 347]        :                                       
+[ 348]        :                                       
+[ 349]    0212:                                       PRINTDR  PROC NEAR
+[ 350]        :                                       ;Process to print on the 7-Seg display
+[ 351]    0212: B3 FE                                 mov  bl,0FEh         ;Strobe init value   1111_1110
+[ 352]    0214: BE 00 00                              mov  si,0
+[ 353]    0217:                                       cycle_prR:
+[ 354]        :                                       ;LIGHTS ON
+[ 355]    0217: BA 02 02                              mov  dx,0202h
+[ 356]    021A: 8A 44 10                              mov  al,show[si]     ;Reading the number to show
+[ 357]    021D: EE                                    out  dx,al
+[ 358]        :                                       
+[ 359]    021E: BA 00 02                              mov  dx,0200h
+[ 360]    0221: 8A C3                                 mov  al,bl           ;Strobe
+[ 361]    0223: EE                                    out  dx,al
+[ 362]        :                                       
+[ 363]        :                                       ;GETTING THE KEYBOARD CODE
+[ 364]    0224: D0 E0 D0 E0 D0 E0 D0 E0               shl  al,4            ;Scan_0000
+[ 365]    022C: A2 1F 00                              mov  get_key,al
+[ 366]    022F: BA 04 02                              mov  dx,0204h        ;get_key <= PTOC(L)
+[ 367]    0232: EC                                    in   al,dx
+[ 368]    0233: 24 0F                                 and  al,0Fh
+[ 369]    0235: 08 06 1F 00                           or   get_key,al      ;Scan_PTOC(L)
+[ 370]    0239: E8 94 FE                              call KEYDEC
+[ 371]        :                                       
+[ 372]        :                                       ;LIGHTS OFF
+[ 373]    023C: BA 00 02                              mov  dx,0200h
+[ 374]    023F: B0 FF                                 mov  al,0FFh
+[ 375]    0241: EE                                    out  dx,al
+[ 376]        :                                       
+[ 377]        :                                       ;PREPARE THE NEXT DATA PRINTING
+[ 378]    0242: D0 C3                                 rol  bl,1
+[ 379]    0244: 46                                    inc  si
+[ 380]    0245: 83 FE 04                              cmp  si,4
+[ 381]    0248: 75 CD                                 jne  cycle_prR
+[ 382]    024A: C3                                    ret
+[ 383]        :                                       PRINTDR  ENDP
+[ 384]        :                                       
+[ 385]        :                                       
+[ 386]        :                                       
+[ 387]    024B:                                       DELAY   PROC NEAR
+[ 388]        :                                       ;Delay process
+[ 389]    024B: B9 B8 0B                              mov cx,3000
+[ 390]    024E: E2 FE                                 loop $
+[ 391]    0250: C3                                    ret
+[ 392]        :                                       DELAY   ENDP
+[ 393]        :                                       
+[ 394]        :                                       
+[ 395]        :                                       
+[ 396]    0251:                                       Numberdos proc near
+[ 397]    0251: BA 06 02                              mov dx,0206h        ;PPI Initialization
+[ 398]    0254: B0 89                                 mov al,89h
+[ 399]    0256: EE                                    out dx,al
+[ 400]        :                                       
+[ 401]    0257:                                       cycle2:                      ;Main cycle
+[ 402]    0257: E8 04 00                              call CNV7SEG2
+[ 403]    025A: E8 15 00                              call PRINTD2
+[ 404]        :                                       ;jmp  cycle2
+[ 405]        :                                       
+[ 406]    025D: C3                                    ret
+[ 407]        :                                       Numberdos endp
+[ 408]        :                                       
+[ 409]    025E:                                       CNV7SEG2 PROC NEAR             ;Para convertir a 7 segmentos
+[ 410]    025E: BE 00 00                              mov  si,0
+[ 411]    0261: BB 14 00                              lea  bx,cod7seg     ;Start address of 7-Seg code table
+[ 412]    0264:                                       cycle_cv2:
+[ 413]    0264: 8A 44 04                              mov  al,number2[si] ;Reading the number to be translated
+[ 414]    0267: D7                                    xlat                ;BCD to 7-Seg translation
+[ 415]    0268: 88 44 10                              mov  show[si],al    ;Writing the translated number
+[ 416]    026B: 46                                    inc  si
+[ 417]    026C: 83 FE 04                              cmp  si,4
+[ 418]    026F: 75 F3                                 jne  cycle_cv2
+[ 419]    0271: C3                                    ret
+[ 420]        :                                       CNV7SEG2 ENDP
+[ 421]        :                                       
+[ 422]        :                                       
+[ 423]    0272:                                       PRINTD2  PROC NEAR
+[ 424]        :                                       ;Process to print on the 7-Seg display
+[ 425]    0272: B3 FE                                 mov  bl,0FEh         ;Strobe init value   1111_1110
+[ 426]    0274: BE 00 00                              mov  si,0
+[ 427]    0277:                                       cycle_pr2:
+[ 428]        :                                       ;LIGHTS ON
+[ 429]    0277: BA 02 02                              mov  dx,0202h
+[ 430]    027A: 8A 44 10                              mov  al,show[si]     ;Reading the number to show
+[ 431]    027D: EE                                    out  dx,al
+[ 432]        :                                       
+[ 433]    027E: BA 00 02                              mov  dx,0200h
+[ 434]    0281: 8A C3                                 mov  al,bl           ;Strobe
+[ 435]    0283: EE                                    out  dx,al
+[ 436]        :                                       
+[ 437]        :                                       ;GETTING THE KEYBOARD CODE
+[ 438]    0284: D0 E0 D0 E0 D0 E0 D0 E0               shl  al,4            ;Scan_0000
+[ 439]    028C: A2 1F 00                              mov  get_key,al
+[ 440]    028F: BA 04 02                              mov  dx,0204h        ;get_key <= PTOC(L)
+[ 441]    0292: EC                                    in   al,dx
+[ 442]    0293: 24 0F                                 and  al,0Fh
+[ 443]    0295: 08 06 1F 00                           or   get_key,al      ;Scan_PTOC(L)
+[ 444]    0299: E8 0F 00                              call KEYDEC2
+[ 445]        :                                       
+[ 446]        :                                       ;LIGHTS OFF
+[ 447]    029C: BA 00 02                              mov  dx,0200h
+[ 448]    029F: B0 FF                                 mov  al,0FFh
+[ 449]    02A1: EE                                    out  dx,al
+[ 450]        :                                       
+[ 451]        :                                       ;PREPARE THE NEXT DATA PRINTING
+[ 452]    02A2: D0 C3                                 rol  bl,1
+[ 453]    02A4: 46                                    inc  si
+[ 454]    02A5: 83 FE 04                              cmp  si,4
+[ 455]    02A8: 75 CD                                 jne  cycle_pr2
+[ 456]    02AA: C3                                    ret
+[ 457]        :                                       PRINTD2  ENDP
+[ 458]        :                                       
+[ 459]        :                                       
+[ 460]        :                                       
+[ 461]        :                                       
+[ 462]    02AB:                                       KEYDEC2  PROC NEAR
+[ 463]    02AB: 53                                    push bx
+[ 464]    02AC: A0 1F 00                              mov  al,get_key
+[ 465]    02AF: 3A 06 21 00                           cmp  al,old_key
+[ 466]    02B3: 75 02                                 jne  key_pressed2
+[ 467]    02B5: EB 29                                 jmp  go_back22       ;Return. The same key is still pressed
+[ 468]    02B7:                                       key_pressed2:
+[ 469]    02B7: 24 0F                                 and  al,0Fh         ;Mask 0Fh
+[ 470]    02B9: 3C 0F                                 cmp  al,0Fh
+[ 471]    02BB: 75 02                                 jne  decode_key2
+[ 472]    02BD: EB 21                                 jmp  go_back22       ;Return. No key was pressed
+[ 473]    02BF:                                       decode_key2:                 ;Keyboard decoding routine
+[ 474]    02BF: B4 00                                 mov  ah,0           ;Counter to zero
+[ 475]    02C1: BB 22 00                              lea  bx,codkeyb     ;Keyboard code table
+[ 476]    02C4:                                       cycle_kbd2:
+[ 477]    02C4: 8A C4                                 mov  al,ah          ;Load counter to AX(L)
+[ 478]    02C6: D7                                    xlat
+[ 479]    02C7: 3A 06 1F 00                           cmp  al,get_key
+[ 480]    02CB: 74 09                                 je   key_decoded2
+[ 481]    02CD: FE C4                                 inc  ah
+[ 482]    02CF: 80 FC 10                              cmp  ah,16
+[ 483]    02D2: 7C F0                                 jl   cycle_kbd2
+[ 484]    02D4: EB 0A                                 jmp  go_back22       ;Return. It is not a valid key
+[ 485]    02D6:                                       key_decoded2:
+[ 486]    02D6: A2 21 00                              mov  old_key,al     ;Pressed Key Code
+[ 487]    02D9: 88 26 20 00                           mov  key,ah         ;Key (0->15 Hex)
+[ 488]    02DD: E8 02 00                              call EVAL2
+[ 489]        :                                       ;Return. Key successfully decoded
+[ 490]    02E0:                                       go_back22:
+[ 491]    02E0: 5B                                    pop  bx
+[ 492]    02E1: C3                                    ret
+[ 493]        :                                       KEYDEC2  ENDP
+[ 494]        :                                       
+[ 495]        :                                       
+[ 496]    02E2:                                       EVAL2    PROC NEAR
+[ 497]        :                                       
+[ 498]    02E2: A0 20 00                              mov  al,key
+[ 499]    02E5: 3C 0A                                 cmp  al,10
+[ 500]    02E7: 72 0B                                 jb Number2bin
+[ 501]    02E9: 3C 0E                                 cmp  al,14
+[ 502]    02EB: E8 9A FE                              call   equal          ;Equal
+[ 503]    02EE: 3C 0F                                 cmp  al,15
+[ 504]    02F0: E8 CB FE                              call on_clr         ;Call to ON/Clear process
+[ 505]    02F3: C3                                    ret
+[ 506]        :                                       
+[ 507]    02F4:                                       Number2bin:
+[ 508]        :                                       
+[ 509]    02F4: 8A 26 05 00                           mov ah,number2[1]    ;Rotate Units->Tens, Tens->Hundreds, Hundreds->Thousands
+[ 510]    02F8: 88 26 04 00                           mov number2[0],ah
+[ 511]    02FC: 8A 26 06 00                           mov ah,number2[2]
+[ 512]    0300: 88 26 05 00                           mov number2[1],ah
+[ 513]    0304: 8A 26 07 00                           mov ah,number2[3]
+[ 514]    0308: 88 26 06 00                           mov number2[2],ah
+[ 515]        :                                       
+[ 516]    030C: A0 20 00                              mov al,key
+[ 517]    030F: A2 07 00                              mov number2[3],al    ;Save key in Units
+[ 518]        :                                       
+[ 519]        :                                       ;Conversion to binary routine
+[ 520]    0312: B4 00                                 mov ah,0
+[ 521]    0314: A0 04 00                              mov al,number2[0]
+[ 522]    0317: B9 E8 03                              mov cx,1000
+[ 523]    031A: F7 E1                                 mul cx
+[ 524]    031C: A3 0E 00                              mov n2_bin,ax
+[ 525]    031F: B4 00                                 mov ah,0
+[ 526]    0321: A0 05 00                              mov al,number2[1]
+[ 527]    0324: B9 64 00                              mov cx,100
+[ 528]    0327: F7 E1                                 mul cx
+[ 529]    0329: 01 06 0E 00                           add n2_bin,ax
+[ 530]    032D: B4 00                                 mov ah,0
+[ 531]    032F: A0 06 00                              mov al,number2[2]
+[ 532]    0332: B9 0A 00                              mov cx,10
+[ 533]    0335: F7 E1                                 mul cx
+[ 534]    0337: 01 06 0E 00                           add n2_bin,ax
+[ 535]    033B: B4 00                                 mov ah,0
+[ 536]    033D: A0 07 00                              mov al,number2[3]
+[ 537]    0340: 01 06 0E 00                           add n2_bin,ax
+[ 538]        :                                       
+[ 539]        :                                       
+[ 540]    0344: C3                                    ret
+[ 541]        :                                       EVAL2    ENDP
+[ 542]        :                                       
+[ 543]    0345:                                       deco proc near
+[ 544]        :                                       
+[ 545]    0345: A3 32 00                              mov res,ax      ; 2345/10
+[ 546]    0348: BB 0A 00                              mov bx,10
+[ 547]    034B: F6 F3                                 div bl
+[ 548]        :                                       
+[ 549]    034D: 88 26 13 00                           mov show[3],ah
+[ 550]    0351: B4 00                                 mov ah,0
+[ 551]    0353: F6 F3                                 div bl
+[ 552]    0355: 88 26 12 00                           mov show[2],ah
+[ 553]    0359: B4 00                                 mov ah,0
+[ 554]    035B: F6 F3                                 div bl
+[ 555]    035D: 88 26 11 00                           mov show[1],ah
+[ 556]    0361: B4 00                                 mov ah,0
+[ 557]    0363: F6 F3                                 div bl
+[ 558]    0365: 88 26 10 00                           mov show[0],ah
+[ 559]        :                                       
+[ 560]        :                                       
+[ 561]    0369: C3                                    ret
+[ 562]        :                                       
+[ 563]        :                                       deco endp
+[ 564]        :                                       
+[ 565]        :                                       ;**************************
+[ 566]        :                                       ;                   R U T I N A S    D E    S O P O R T E
+[ 567]        :                                       ;**************************
+[ 568]        :                                       ; las siguientes rutinas fueron tomadas del ing. Wilson Javier Peres H
+[ 569]        :                                       ;------------------------------------------------------------------------------
+[ 570]        :                                       ; Rutina      : Multiplica
+[ 571]        :                                       ; Prop¢sito   : Multiplica dos n£meros enteros sin signo
+[ 572]        :                                       ; Par metros  : En el registro AX el multiplicando y en BX el multiplicador
+[ 573]        :                                       ; Regresa     : El resultado en el registro par DX:AX, que es desplegado en
+[ 574]        :                                       ;               la pantalla.
+[ 575]        :                                       ;------------------------------------------------------------------------------
+[ 576]        :                                       
+[ 577]    036A:                                       Multiplica Proc Near
+[ 578]        :                                       ; Xor  Dx, Dx               ; Dx = 0 por si acaso
+[ 579]        :                                       ; Mov  Ax, CantUnoR         ; Primera cantidad (multiplicando)
+[ 580]        :                                       ; Mov  Bx, CantDosR         ; Segunda cantidad (multiplicador)
+[ 581]        :                                       ; Mul  Bx                   ; Multiplica
+[ 582]        :                                       ; Call ConvASCII            ; Convierte en ASCII
+[ 583]        :                                       ; Mov  Dx, Offset Resulta   ; Prepara para desplegar la cadena del
+[ 584]        :                                       ; Call Imprime              ; resultado
+[ 585]        :                                       ; Mov  Dx, Offset ResultaR  ; Despliega el resultado.
+[ 586]        :                                       ; Call Imprime
+[ 587]        :                                       ; Ret
+[ 588]        :                                       Multiplica Endp
+[ 589]        :                                       
+[ 590]        :                                       ;------------------------------------------------------------------------------
+[ 591]        :                                       ; Rutina      : Divide
+[ 592]        :                                       ; Prop¢sito   : Divide dos n£meros enteros sin signo
+[ 593]        :                                       ; Par metros  : En el registro AX el dividendo y en BX el divisor
+[ 594]        :                                       ; Regresa     : El resultado en el registro par DX:AX, que es desplegado en
+[ 595]        :                                       ;               la pantalla.
+[ 596]        :                                       ;------------------------------------------------------------------------------
+[ 597]        :                                       
+[ 598]    036A:                                       Divide Proc Near
+[ 599]        :                                       
+[ 600]        :                                       ;Mov  Ax, CantUnoR        ; Carga la cantidad 1 (dividendo)
+[ 601]        :                                       ;Mov  Bx, CantDosR        ; Carga la cantidad 2 (divisor)
+[ 602]        :                                       ;Cmp  Bx, 0               ; Revisa si el divisor es 0 para evitar un
+[ 603]        :                                       			   ; error de divisi¢n por cero.
+[ 604]        :                                       ;Jnz  DIVIDE01
+[ 605]        :                                       ;Mov  Cantidad, 3         ; Hubo error, as¡ que despliega el mensaje y
+[ 606]        :                                       			   ; salta
+[ 607]        :                                       ;Call HuboERROR
+[ 608]        :                                       ;Ret
+[ 609]    036A:                                       DIVIDE01:
+[ 610]        :                                       ;Div  Bx                  ; Divide
+[ 611]        :                                       ;Xor  Dx, Dx              ; Dx = 0. No se usa el residuo para simplificar
+[ 612]        :                                       ; las operaciones
+[ 613]        :                                       ;mov res,ah
+[ 614]        :                                       ;Call ConvASCII           ; Convierte en ASCII
+[ 615]        :                                       ;Mov  Dx, Offset Resulta  ; Despliega la cadena del resultado
+[ 616]        :                                       ;Call Imprime
+[ 617]        :                                       ;Mov  Dx, Offset ResultaR ; Despliega el resultado
+[ 618]        :                                       ;Call Imprime
+[ 619]        :                                       ;Ret
+[ 620]        :                                       Divide Endp
+[ 621]        :                                       
+[ 622]        :                                       ;------------------------------------------------------------------------------
+[ 623]        :                                       ; Rutina      : Suma
+[ 624]        :                                       ; Prop¢sito   : Suma dos n£meros enteros sin signo
+[ 625]        :                                       ; Par metros  : En el registro AX el primer n£mero y en BX el segundo
+[ 626]        :                                       ; Regresa     : El resultado en el registro par DX:AX, que es desplegado en
+[ 627]        :                                       ;               la pantalla.
+[ 628]        :                                       ;------------------------------------------------------------------------------
+[ 629]        :                                       
+[ 630]    036A:                                       Suma Proc Near
+[ 631]    036A: 33 D2                                 xor  Dx, Dx
+[ 632]    036C: A1 39 00                              Mov  Ax, CantUnoR         ; Primera cantidad
+[ 633]    036F: 8B 1E 3B 00                           Mov  Bx, CantDosR         ; Segunda cantidad
+[ 634]    0373: 03 C3                                 Add  Ax, Bx               ; suma
+[ 635]    0375: A3 32 00                              Mov  Res, Ax              ; Guardoresultadosuma
+[ 636]    0378: 73 03                                 Jnc  SUMACONV
+[ 637]    037A: 83 D2 00                              adc  Dx,0
+[ 638]    037D:                                       SUMACONV:
+[ 639]    037D: E8 C5 FF                              call Deco
+[ 640]    0380: C3                                    Ret
+[ 641]        :                                       Suma Endp
+[ 642]        :                                       
+[ 643]        :                                       ;------------------------------------------------------------------------------
+[ 644]        :                                       ; Rutina      : Resta
+[ 645]        :                                       ; Prop¢sito   : Resta dos n£meros enteros sin signo
+[ 646]        :                                       ; Par metros  : En el registro AX el primer n£mero y en BX el segundo
+[ 647]        :                                       ; Regresa     : El resultado en el registro par DX:AX, que es desplegado en
+[ 648]        :                                       ;               la pantalla.
+[ 649]        :                                       ;------------------------------------------------------------------------------
+[ 650]        :                                       
+[ 651]    0381:                                       Resta Proc Near
+[ 652]        :                                       ;Xor  Dx, Dx              ; Dx = 0 por si acaso existe acarreo
+[ 653]        :                                       
+[ 654]        :                                       ;push cx
+[ 655]        :                                       ;mov cx ,CantDosR
+[ 656]        :                                       ;cmp  CantUnoR,cx
+[ 657]        :                                       ;jg  directa              ; CantDosR >  CantUnoR
+[ 658]        :                                       ;jmp inversa
+[ 659]    0381:                                       inversa:
+[ 660]        :                                       ;Mov  Bx, CantUnoR        ; Primera cantidad
+[ 661]        :                                       ;Mov  Ax, CantDosR        ; Segunda cantidad
+[ 662]        :                                       ;jmp operacion_resta
+[ 663]    0381:                                       directa:
+[ 664]        :                                       ;Mov  Ax, CantUnoR        ; Primera cantidad
+[ 665]        :                                       ;Mov  Bx, CantDosR        ; Segunda cantidad
+[ 666]    0381:                                       operacion_resta:
+[ 667]        :                                       ;pop  cx
+[ 668]        :                                       ;Sub  Ax, Bx              ; Resta cantidades
+[ 669]        :                                       ;Jnc  RESTACONV           ; ¨Hubo acarreo?
+[ 670]        :                                       ;Sbb  Dx, 0               ; S¡.
+[ 671]    0381:                                       RESTACONV:
+[ 672]        :                                       ;Call ConvASCII           ; Convierte en ASCII
+[ 673]        :                                       ;Mov  Dx, Offset Resulta  ; Despliega cadena del resultado
+[ 674]        :                                       ;Call Imprime
+[ 675]        :                                       ;Mov  Dx, Offset ResultaR ; Despliega el resultado
+[ 676]        :                                       ;Call Imprime
+[ 677]        :                                       ;Ret
+[ 678]        :                                       Resta Endp
+[ 679]        :                                       
+[ 680]        :                                       
+[ 681]        :                                       
+[ 682]        :                                       CODE    ENDS
+[ 683]        :                                       
+[ 684]        :                                       
+[ 685]        :                                       END START  ; set en
+[ 686]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 81      -   bytes on last page (l.byte)
+0003: 01      -   bytes on last page (h.byte)
+0004: 03      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 06      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 01      -   SP - stack pointer (l.byte)
+0011: 00      -   SP - stack pointer (h.byte)
+0012: DA      -   check sum (l.byte)
+0013: 81      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 07      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 07      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

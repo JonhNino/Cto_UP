@@ -1,0 +1,43 @@
+< THE SYMBOL TABLE >  Teclado1.exe  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+DATA                     	00000     	-5        	SEGMENT   	(ITSELF)  
+NUMBER1                  	00000     	1         	VAR       	DATA      
+NUMBER2                  	00004     	1         	VAR       	DATA      
+N1_BIN                   	00008     	2         	VAR       	DATA      
+N2_BIN                   	0000A     	2         	VAR       	DATA      
+SHOW                     	0000C     	1         	VAR       	DATA      
+COD7SEG                  	00010     	1         	VAR       	DATA      
+GET_KEY                  	0001B     	1         	VAR       	DATA      
+KEY                      	0001C     	1         	VAR       	DATA      
+OLD_KEY                  	0001D     	1         	VAR       	DATA      
+CODKEYB                  	0001E     	1         	VAR       	DATA      
+STACK                    	00003     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	00004     	-5        	SEGMENT   	(ITSELF)  
+MAIN                     	00000     	-1        	NEAR      	CODE      
+START                    	00000     	-1        	LABEL     	CODE      
+CYCLE                    	0000B     	-1        	LABEL     	CODE      
+CNV7SEG                  	00014     	-1        	NEAR      	CODE      
+CYCLE_CV                 	0001A     	-1        	LABEL     	CODE      
+PRINTD                   	00027     	-1        	NEAR      	CODE      
+CYCLE_PR                 	0002C     	-1        	LABEL     	CODE      
+KEYDEC                   	00060     	-1        	NEAR      	CODE      
+KEY_PRESSED              	0006C     	-1        	LABEL     	CODE      
+DECODE_KEY               	00074     	-1        	LABEL     	CODE      
+CYCLE_KBD                	00079     	-1        	LABEL     	CODE      
+KEY_DECODED              	0008B     	-1        	LABEL     	CODE      
+GO_BACK2                 	00095     	-1        	LABEL     	CODE      
+EVAL                     	00097     	-1        	NEAR      	CODE      
+ROT_SAVE_CBIN            	000B5     	-1        	LABEL     	CODE      
+DIVISION                 	00106     	-1        	LABEL     	CODE      
+MULTI                    	00107     	-1        	LABEL     	CODE      
+SUBTRAC                  	00108     	-1        	LABEL     	CODE      
+SUM                      	00109     	-1        	LABEL     	CODE      
+EQUAL                    	0010A     	-1        	LABEL     	CODE      
+ON_CLR                   	0010B     	-1        	NEAR      	CODE      
+DELAY                    	0010B     	-1        	NEAR      	CODE      
+===================================================================================================
+[ 29/09/2021  --  8:26:33 a. m. ] 
+< END >
+ 

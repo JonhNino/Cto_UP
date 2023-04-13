@@ -1,0 +1,29 @@
+< THE SYMBOL TABLE >  mycode.exe  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+DATA                     	00000     	-5        	SEGMENT   	(ITSELF)  
+DATO_LEIDO               	00000     	1         	VAR       	data      
+PTO_SALIDA               	003E8     	2         	VAR       	data      
+PTO_ENTRADA              	003EA     	2         	VAR       	data      
+PPI_PTOA                 	003EC     	2         	VAR       	data      
+PPI_PTOB                 	003EE     	2         	VAR       	data      
+PPI_PTOC                 	003F0     	2         	VAR       	data      
+PPI_CTRL                 	003F2     	2         	VAR       	data      
+TPI_CNT0                 	003F4     	2         	VAR       	data      
+TPI_CNT1                 	003F6     	2         	VAR       	data      
+TPI_CNT2                 	003F8     	2         	VAR       	data      
+TPI_CTRL                 	003FA     	2         	VAR       	data      
+CNT                      	003FC     	1         	VAR       	data      
+STACK                    	00040     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	00054     	-5        	SEGMENT   	(ITSELF)  
+MAIN                     	00000     	-1        	NEAR      	code      
+START                    	00000     	-1        	LABEL     	code      
+CICLO                    	0000F     	-1        	LABEL     	code      
+SEGUIR                   	00020     	-1        	LABEL     	code      
+DELAY                    	00037     	-1        	NEAR      	code      
+L1                       	0003A     	-1        	LABEL     	code      
+===================================================================================================
+[ 22/09/2021  --  10:32:47 a. m. ] 
+< END >
+ 

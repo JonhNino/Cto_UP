@@ -1,0 +1,30 @@
+< THE SYMBOL TABLE >  Contador.exe  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+DATA                     	00000     	-5        	SEGMENT   	(ITSELF)  
+NUMBER                   	00000     	1         	VAR       	DATA      
+SHOW                     	00004     	1         	VAR       	DATA      
+COD7SEG                  	00008     	1         	VAR       	DATA      
+GET_KEY                  	00012     	1         	VAR       	DATA      
+KEY                      	00013     	1         	VAR       	DATA      
+STACK                    	00002     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	00003     	-5        	SEGMENT   	(ITSELF)  
+MAIN                     	00000     	-1        	NEAR      	CODE      
+START                    	00000     	-1        	LABEL     	CODE      
+CYCLE                    	0000B     	-1        	LABEL     	CODE      
+CONV7SEG                 	0001A     	-1        	NEAR      	CODE      
+CYCLECV                  	00020     	-1        	LABEL     	CODE      
+PRINTD                   	0002D     	-1        	NEAR      	CODE      
+CYCLEPR                  	00032     	-1        	LABEL     	CODE      
+CONTA                    	00063     	-1        	NEAR      	CODE      
+INC_TENS                 	00070     	-1        	LABEL     	CODE      
+INC_HUND                 	00082     	-1        	LABEL     	CODE      
+INC_THOU                 	00094     	-1        	LABEL     	CODE      
+RST_THOU                 	000A6     	-1        	LABEL     	CODE      
+GO_BACK                  	000AB     	-1        	LABEL     	CODE      
+DELAY                    	000AC     	-1        	NEAR      	CODE      
+===================================================================================================
+[ 29/09/2021  --  8:29:13 a. m. ] 
+< END >
+ 

@@ -1,0 +1,85 @@
+< THE SYMBOL TABLE >  Calculadoranofuncional.exe  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+DATA                     	00000     	-5        	SEGMENT   	(ITSELF)  
+NUMBER1                  	00000     	1         	VAR       	DATA      
+NUMBER2                  	00004     	1         	VAR       	DATA      
+RESULT                   	00008     	1         	VAR       	DATA      
+N1_BIN                   	0000C     	2         	VAR       	DATA      
+N2_BIN                   	0000E     	2         	VAR       	DATA      
+SHOW                     	00010     	1         	VAR       	DATA      
+COD7SEG                  	00014     	1         	VAR       	DATA      
+GET_KEY                  	0001F     	1         	VAR       	DATA      
+KEY                      	00020     	1         	VAR       	DATA      
+OLD_KEY                  	00021     	1         	VAR       	DATA      
+CODKEYB                  	00022     	1         	VAR       	DATA      
+RES                      	00032     	2         	VAR       	DATA      
+OPERACION                	00034     	1         	VAR       	DATA      
+UNIDADES                 	00035     	1         	VAR       	DATA      
+DECENAS                  	00036     	1         	VAR       	DATA      
+CENTENAS                 	00037     	1         	VAR       	DATA      
+MIL                      	00038     	1         	VAR       	DATA      
+CANTUNOR                 	00039     	2         	VAR       	DATA      
+CANTDOSR                 	0003B     	2         	VAR       	DATA      
+RESULTA                  	0003D     	2         	VAR       	DATA      
+RESULTAR                 	00041     	2         	VAR       	DATA      
+CANTIDAD                 	00059     	2         	VAR       	DATA      
+POTENCIA                 	0005B     	2         	VAR       	DATA      
+STACK                    	00006     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	00007     	-5        	SEGMENT   	(ITSELF)  
+MAIN                     	00000     	-1        	NEAR      	CODE      
+START                    	00000     	-1        	LABEL     	CODE      
+CYCLE                    	0000B     	-1        	LABEL     	CODE      
+CNV7SEG                  	00014     	-1        	NEAR      	CODE      
+CYCLE_CV                 	0001A     	-1        	LABEL     	CODE      
+PRINTD                   	00027     	-1        	NEAR      	CODE      
+CYCLE_PR                 	0002C     	-1        	LABEL     	CODE      
+KEYDEC                   	00060     	-1        	NEAR      	CODE      
+KEY_PRESSED              	0006C     	-1        	LABEL     	CODE      
+DECODE_KEY               	00074     	-1        	LABEL     	CODE      
+CYCLE_KBD                	00079     	-1        	LABEL     	CODE      
+KEY_DECODED              	0008B     	-1        	LABEL     	CODE      
+GO_BACK2                 	00095     	-1        	LABEL     	CODE      
+EVAL                     	00097     	-1        	NEAR      	CODE      
+ROT_SAVE_CBIN            	000A9     	-1        	LABEL     	CODE      
+SAVE_NUMBER              	000FA     	-1        	LABEL     	CODE      
+EQUAL                    	00118     	-1        	LABEL     	CODE      
+DIVISION                 	00138     	-1        	LABEL     	CODE      
+MULTI                    	0013F     	-1        	LABEL     	CODE      
+SUBTRAC                  	00146     	-1        	LABEL     	CODE      
+SUM                      	0014A     	-1        	LABEL     	CODE      
+OPERA                    	0014E     	-1        	NEAR      	CODE      
+ON_CLR                   	0014E     	-1        	NEAR      	CODE      
+PRINTDR                  	001A2     	-1        	NEAR      	CODE      
+CYCLE_PRR                	001A7     	-1        	LABEL     	CODE      
+DELAY                    	001DB     	-1        	NEAR      	CODE      
+NUMBERDOS                	001E1     	-1        	NEAR      	CODE      
+CYCLE2                   	001E7     	-1        	LABEL     	CODE      
+CNV7SEG2                 	001EE     	-1        	NEAR      	CODE      
+CYCLE_CV2                	001F4     	-1        	LABEL     	CODE      
+PRINTD2                  	00202     	-1        	NEAR      	CODE      
+CYCLE_PR2                	00207     	-1        	LABEL     	CODE      
+KEYDEC2                  	0023B     	-1        	NEAR      	CODE      
+KEY_PRESSED2             	00247     	-1        	LABEL     	CODE      
+DECODE_KEY2              	0024F     	-1        	LABEL     	CODE      
+CYCLE_KBD2               	00254     	-1        	LABEL     	CODE      
+KEY_DECODED2             	00266     	-1        	LABEL     	CODE      
+GO_BACK22                	00270     	-1        	LABEL     	CODE      
+EVAL2                    	00272     	-1        	NEAR      	CODE      
+NUMBER2BIN               	00284     	-1        	LABEL     	CODE      
+DECO                     	002D5     	-1        	NEAR      	CODE      
+MULTIPLICA               	002FA     	-1        	NEAR      	CODE      
+DIVIDE                   	002FA     	-1        	NEAR      	CODE      
+DIVIDE01                 	002FA     	-1        	LABEL     	CODE      
+SUMA                     	002FA     	-1        	NEAR      	CODE      
+SUMACONV                 	0030D     	-1        	LABEL     	CODE      
+RESTA                    	00311     	-1        	NEAR      	CODE      
+INVERSA                  	00311     	-1        	LABEL     	CODE      
+DIRECTA                  	00311     	-1        	LABEL     	CODE      
+OPERACION_RESTA          	00311     	-1        	LABEL     	CODE      
+RESTACONV                	00311     	-1        	LABEL     	CODE      
+===================================================================================================
+[ 4/10/2021  --  1:27:41 p. m. ] 
+< END >
+ 

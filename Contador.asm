@@ -1,0 +1,166 @@
+;--------------------------------------------------------
+;Universidad Pedagogica y Tecnologica de Colombia UPTC
+;Facultad Seccional Sogamoso
+;Escuela de Ingenieria Electronica
+;--------------------------------------------------------
+;Microprocessors Course
+;Description: Example of the use of processes, 
+;             subroutines calling and peripherals handling
+;             in assembler for Intel x86 
+;Author:      Wilson Javier Perez Holguin
+;Date:        21-07-2020	v1
+;			  03-03-2021	v2
+;--------------------------------------------------------
+
+DATA   SEGMENT PARA PUBLIC 'DATA'
+	number 	DB  0,0,0,0
+	show    DB  3FH,3FH,3FH,3FH
+	cod7seg DB  3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,67H  ; 7 SEGMENT CODES FOR NUMBERS 0 TO 9
+	get_key DB  ?
+	key     DB  ?
+
+	;  BCD     7-Seg  
+	; Digit     Code
+	;	0		3FH
+	; 	1		06H
+	; 	2		5BH
+	; 	3		4FH
+	; 	4		66H
+	; 	5		6DH
+	; 	6		7DH
+	; 	7		07H
+	; 	8		7FH
+	; 	9		67H
+DATA    ENDS  
+
+
+STACK   SEGMENT PARA STACK 'STACK'
+        DB      64 DUP ?
+STACK   ENDS
+   
+   
+CODE    SEGMENT PUBLIC 'CODE'
+        ASSUME CS:CODE, DS:DATA, SS:STACK, ES:DATA
+		
+MAIN    PROC NEAR
+START:
+		mov ax,@DATA
+		mov ds,ax
+		
+		;PPI Initialization
+		mov dx,0206h     ; REG CONTROL
+		mov al,81h       ; PTOA OUT     PTOB OUT    PTOC(L) IN      PTOC(H) OUT
+		out dx,al
+		
+cycle:  ;Main cycle  
+        call CONV7SEG
+        call PRINTD
+        call CONTA
+        call DELAY
+        jmp  cycle
+		         
+		;Return to another subroutine or to OS
+        ret        
+MAIN    ENDP 
+             
+               
+
+CONV7SEG PROC NEAR USES BX SI
+        ;push bx
+        ;push si      
+        mov  si,0
+        lea  bx,cod7seg     ;Start address of 7-Seg code table
+cyclecv:
+        mov  al,number[si]  ;Reading the number to be translated
+        xlat                ;BCD to 7-Seg translation
+        mov  show[si],al    ;Writing the translated number
+        inc  si
+        cmp  si,4
+        jne  cyclecv
+        ;pop  si
+        ;pop  bx
+        ret
+CONV7SEG ENDP            
+        
+        
+PRINTD  PROC NEAR
+        ;Process to print on the 7-Seg display
+        mov bl,0FEh         ;Strobe init value   1111_1110
+		mov si,0
+cyclepr:  
+		;LIGHTS ON SUBROUTUNE
+		mov dx,0202h        ;PTOB
+		mov al,show[si]     ;Reading the number to show
+		out dx,al
+  
+		mov dx,0200h        ;PTOA
+		mov al,bl           ;Strobe
+		out dx,al
+		
+		                  
+		;SUBROUTINE FOR GETTING THE KEYBOARD CODE
+		shl al,4
+		mov get_key,al  
+		
+		mov dx,0204h        ;get_key <= PTOC(L)
+		in  al,dx                        
+		and al,0Fh          ;MASKING WITH 0000_1111
+		or  get_key,al                  
+		
+		                  
+		;LIGHTS OFF SUBROUTUNE
+		mov dx,0200h        ;PTOA 
+		mov al,0FFh         ;ALL DISPLAYS OFF
+		out dx,al
+		
+		;PREPARE THE NEXT DATA PRINTING
+		rol bl,1            
+	    inc si        
+		cmp si,4
+		jne cyclepr
+		ret
+PRINTD  ENDP
+                 
+                 
+CONTA   PROC NEAR
+        ;COUNTING SUBROUTINE      
+        inc number[3]
+        cmp number[3],10
+        je  inc_tens
+        jmp go_back           
+inc_tens:  
+        mov number[3],0      
+        inc number[2]
+        cmp number[2],10
+        je  inc_hund
+        jmp go_back
+inc_hund:  
+        mov number[2],0      
+        inc number[1]
+        cmp number[1],10
+        je  inc_thou
+        jmp go_back
+inc_thou:  
+        mov number[1],0      
+        inc number[0]
+        cmp number[0],10
+        je  rst_thou
+        jmp go_back
+rst_thou:
+        mov number[1],0
+go_back:
+        ret
+CONTA   ENDP  
+
+DELAY   PROC NEAR
+        ;Delay process
+        mov cx,3000
+        loop $
+        ret     
+DELAY   ENDP        
+
+              
+              
+CODE    ENDS 
+
+        END START
